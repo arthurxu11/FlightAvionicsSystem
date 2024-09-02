@@ -37,9 +37,9 @@ BUILD_DIR = build
 ######################################
 # C sources
 C_SOURCES =  \
-../../CM4/Core/Src/main.c \
-../../CM4/Core/Src/stm32h7xx_it.c \
-../../CM4/Core/Src/stm32h7xx_hal_msp.c \
+$(wildcard ../../CM4/Core/Src/*.c) \
+$(wildcard ../../Custom/Shared/Source/*.c) \
+$(wildcard ../../Common/Src/*.c) \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c \
@@ -65,9 +65,6 @@ C_SOURCES =  \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c \
-../../Common/Src/system_stm32h7xx_dualcore_boot_cm4_cm7.c \
-../../CM4/Core/Src/freertos.c \
-../../CM4/Core/Src/stm32h7xx_hal_timebase_tim.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc.c \
 ../../Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc_ex.c \
 ../../Middlewares/Third_Party/FreeRTOS/Source/croutine.c \
@@ -80,9 +77,6 @@ C_SOURCES =  \
 ../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c \
 ../../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c \
 ../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c \
-../../Custom/Shared/Source/core_comms.c \
-../../Custom/Shared/Source/string_utilities.c \
-../../Custom/Shared/Source/user_messages.c
 
 # ASM sources
 ASM_SOURCES =  \
