@@ -10,7 +10,7 @@
 
 typedef struct core_comm_channel {
     volatile uint8_t buffer[CORE_COMM_CHANNEL_BUFFER_LEN];
-    osMutexId_t mutex_handle;
+    osSemaphoreId_t semaphore_handle;
     volatile int ready_to_read;
     volatile int receiver_acknowledged;
 } core_comm_channel;

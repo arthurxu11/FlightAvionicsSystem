@@ -391,7 +391,7 @@ void CM7StatusLEDTask(void *argument)
     format_str(to_cm4_buf, 48, "To CM4: %s\0", from_cm4_buf);
 
     // As CM7, Send echoed message to CM4
-    // while(!core_comms_channel_acknowledged(comm_CM7_to_CM4_messages_ptr));
+    while(!core_comms_channel_acknowledged(comm_CM7_to_CM4_messages_ptr));
     status = core_comms_channel_send(comm_CM7_to_CM4_messages_ptr, (uint8_t *) to_cm4_buf, 48);
 
     /*

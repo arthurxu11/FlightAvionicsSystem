@@ -368,15 +368,16 @@ void CM4StatusLEDTask(void *argument)
     // Format a message
     format_str(to_cm7_buf, 48, "To CM7: %d\0", num++);
     
-    // As CM4, Send message to CM7
-    // while(!core_comms_channel_acknowledged(comm_CM4_to_CM7_messages_ptr));
-    status = core_comms_channel_send(comm_CM4_to_CM7_messages_ptr, (uint8_t *) to_cm7_buf, 48);
-
     // As CM4, Receive data from CM7
     // Note: the ready bits not fully functional yet
     if(core_comms_channel_ready(comm_CM7_to_CM4_messages_ptr)) {      
       status = core_comms_channel_receive(comm_CM7_to_CM4_messages_ptr, (uint8_t *) from_cm7_buf, 48);
     }
+
+    // As CM4, Send message to CM7
+    while(!core_comms_channel_acknowledged(comm_CM4_to_CM7_messages_ptr));
+    status = core_comms_channel_send(comm_CM4_to_CM7_messages_ptr, (uint8_t *) to_cm7_buf, 48);
+
 
     // Record outgoing message
     // format_str(printbuffer, 100, "Sent: %s\n\0", to_cm7_buf);

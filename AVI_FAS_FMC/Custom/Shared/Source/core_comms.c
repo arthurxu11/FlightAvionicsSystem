@@ -29,7 +29,7 @@ void core_comms_init_all_channels(void) {
 
 void core_comms_init_CM4_to_CM7_messages()
 {
-  comm_CM4_to_CM7_messages_ptr->mutex_handle = osMutexNew(&comm_CM4_to_CM7_messages_mutex_attr);
+  comm_CM4_to_CM7_messages_ptr->semaphore_handle = osSemaphoreNew(1, 0, NULL);
   memset((void *) comm_CM4_to_CM7_messages_ptr->buffer, 0, (size_t)CORE_COMM_CHANNEL_BUFFER_LEN);
   comm_CM4_to_CM7_messages_ptr->receiver_acknowledged = 1; // start off as ready to send
   comm_CM4_to_CM7_messages_ptr->ready_to_read = 0;
@@ -37,7 +37,7 @@ void core_comms_init_CM4_to_CM7_messages()
 
 void core_comms_init_CM7_to_CM4_messages()
 {
-  comm_CM7_to_CM4_messages_ptr->mutex_handle = osMutexNew(&comm_CM7_to_CM4_messages_mutex_attr);
+  comm_CM7_to_CM4_messages_ptr->semaphore_handle = osSemaphoreNew(1, 0, NULL);
   memset((void *) comm_CM7_to_CM4_messages_ptr->buffer, 0, (size_t)CORE_COMM_CHANNEL_BUFFER_LEN);
   comm_CM7_to_CM4_messages_ptr->receiver_acknowledged = 1; // start off as ready to send
   comm_CM7_to_CM4_messages_ptr->ready_to_read = 0;
@@ -56,7 +56,7 @@ int core_comms_channel_ready(volatile core_comm_channel* comm_ptr) {
 
   int val;
 
-  int status = osMutexAcquire(comm_ptr->mutex_handle, CORE_COMM_MUTEX_WAIT);
+  int status = osSemaphoreAcquire(comm_ptr->semaphore_handle, CORE_COMM_MUTEX_WAIT);
   if (status != osOK)
   {
     return -1;
@@ -64,7 +64,7 @@ int core_comms_channel_ready(volatile core_comm_channel* comm_ptr) {
 
   val = comm_ptr->ready_to_read;
 
-  status = osMutexRelease(comm_ptr->mutex_handle);
+  status = osSemaphoreRelease(comm_ptr->semaphore_handle);
   if (status != osOK)
   {
     return -1;
@@ -82,15 +82,15 @@ int core_comms_channel_acknowledged(volatile core_comm_channel* comm_ptr) {
 
   int val;
 
-  int status = osMutexAcquire(comm_ptr->mutex_handle, CORE_COMM_MUTEX_WAIT);
+  int status = osSemaphoreAcquire(comm_ptr->semaphore_handle, CORE_COMM_MUTEX_WAIT);
   if (status != osOK)
   {
     return -1;
   }
 
   val = comm_ptr->receiver_acknowledged;
-
-  status = osMutexRelease(comm_ptr->mutex_handle);
+  
+  status = osSemaphoreRelease(comm_ptr->semaphore_handle);
   if (status != osOK)
   {
     return -1;
@@ -105,10 +105,10 @@ int core_comms_channel_send(volatile core_comm_channel* comm_ptr, uint8_t* send_
     Ideally, this function would also ensure that the channel is ready for communication
     This functionality has not been added yet
   */
-  int status = osMutexAcquire(comm_ptr->mutex_handle, CORE_COMM_MUTEX_WAIT);
+  int status = osSemaphoreAcquire(comm_ptr->semaphore_handle, CORE_COMM_MUTEX_WAIT);
   if (status != osOK)
   {
-    return CORE_COMM_ERROR_MUTEX_NOT_ACQUIRED;
+    return -1;
   }
 
   // Assert new message has not yet been received
@@ -125,10 +125,10 @@ int core_comms_channel_send(volatile core_comm_channel* comm_ptr, uint8_t* send_
   // Assert new message is ready to be read
   comm_ptr->ready_to_read = 1;
 
-  status = osMutexRelease(comm_ptr->mutex_handle);
+  status = osSemaphoreRelease(comm_ptr->semaphore_handle);
   if (status != osOK)
   {
-    return CORE_COMM_ERROR_MUTEX_NOT_RELEASED;
+    return -1;
   }
 
   return bytes_sent;
@@ -140,10 +140,10 @@ int core_comms_channel_receive(volatile core_comm_channel* comm_ptr, uint8_t* rc
     Ideally, this function would also ensure that the channel is ready for communication
     This functionality has not been added yet
   */
-  int status = osMutexAcquire(comm_ptr->mutex_handle, CORE_COMM_MUTEX_WAIT);
+  int status = osSemaphoreAcquire(comm_ptr->semaphore_handle, CORE_COMM_MUTEX_WAIT);
   if (status != osOK)
   {
-    return CORE_COMM_ERROR_MUTEX_NOT_ACQUIRED;
+    return -1;
   }
 
   // Assert message is read
@@ -161,10 +161,10 @@ int core_comms_channel_receive(volatile core_comm_channel* comm_ptr, uint8_t* rc
   // Assert message has been received
   comm_ptr->receiver_acknowledged = 1;
 
-  status = osMutexRelease(comm_ptr->mutex_handle);
+  status = osSemaphoreRelease(comm_ptr->semaphore_handle);
   if (status != osOK)
   {
-    return CORE_COMM_ERROR_MUTEX_NOT_RELEASED;
+    return -1;
   }
 
   return bytes_rcvd;
